@@ -1,0 +1,9 @@
+A,B
+25,"=VLOOKUP(A1,Sheet1!A1:C26,2,true)"
+22,"=VLOOKUP(A2,Sheet1!A1:C26,2,true)"
+5,"=VLOOKUP(A3,Sheet1!A1:C26,2,true)"
+7,"=VLOOKUP(A4,Sheet1!A1:C26,2,true)"
+13,"=VLOOKUP(A5,Sheet1!A1:C26,2,true)"
+17,"=VLOOKUP(A6,Sheet1!A1:C26,2,true)"
+22,"=VLOOKUP(A7,Sheet1!A1:C26,2,true)"
+5,"=VLOOKUP(A8,Sheet1!A1:C26,2,true)"
