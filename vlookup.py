@@ -19,6 +19,10 @@ import csv, re
 library = {}
 requirement = []
 
+
+"""
+    will read though the sheet and the data in library according to sheet
+"""
 def getSheetInfo(source_file):
     source = None
     with open('input/{}.csv'.format(source_file), newline='') as csvfile:
@@ -62,6 +66,9 @@ def findColumnPosition(source, column):
     return source["columns"].index(column_name)
 
 
+"""
+    checking the value in sequential order
+"""
 def linearSearch(source, input_column, source_range, column, col_range):
     col_range = col_range.split(":")
     start = source["sheet_hash_map"][col_range[0]]
@@ -74,6 +81,10 @@ def linearSearch(source, input_column, source_range, column, col_range):
         idx+=1
     return None
 
+
+"""
+    using binary search on the column to find the input_column
+"""
 def binarySearch(source, input_column, source_range, column, col_range):
     col_range = col_range.split(":")
     start = source["sheet_hash_map"][col_range[0]]
@@ -83,12 +94,15 @@ def binarySearch(source, input_column, source_range, column, col_range):
     # search_idx = 0
     search_idx = findColumnPosition(source, col_range[0])
 
+
     while start<=end:
         mid = (start+end)//2
         row = source["sheet_value_list"][mid]
         
+        abs_column_position = search_idx+int(column)
+
         if input_column == row[search_idx]:
-            return row[int(column)-1]
+            return row[abs_column_position-1]
         if int(input_column) < int(row[search_idx]):
             end = mid
         else:
