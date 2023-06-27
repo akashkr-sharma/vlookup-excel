@@ -1,4 +1,4 @@
-import csv
+import csv, re
 
 # - input file
 # - source of vlookup
@@ -24,6 +24,7 @@ def getSheetInfo(source_file):
     with open('input/{}.csv'.format(source_file), newline='') as csvfile:
         if source_file not in library:
             library[source_file] = {
+                "columns": list(),
                 "sheet_hash_map": dict(),
                 "sheet_value_list": list(),
                 "sheet_processing": False
@@ -39,28 +40,36 @@ def getSheetInfo(source_file):
 
             for key, val in row.items():
                 new_key = "{}{}".format(key, idx+1)
+                if key not in source["columns"]:
+                    source["columns"].append(key)
                 source["sheet_hash_map"][new_key] = (val, idx)
                 source["sheet_value_list"][idx].append(val)
             idx+=1
         source["sheet_processing"] = True
-        # print("sheet_hash_map: ",source["sheet_hash_map"])
-        # print("-"*20)
-        # print("sheet_value_list: ", source["sheet_value_list"])
     return source
 
+"""
+    search the column position in target sheet 
+"""
+def findColumnPosition(source, column):
+    column_name = ""
+    isDigit = False
+    for i in range(len(column)):
+        if (column[i].isdigit()):
+            if not isDigit:
+                break
+        column_name+=column[i]
+    return source["columns"].index(column_name)
 
 
 def linearSearch(source, input_column, source_range, column, col_range):
-    print("input_column, source_range, column, is_sorted: ",input_column, source_range, column)
     col_range = col_range.split(":")
     start = source["sheet_hash_map"][col_range[0]]
     end = source["sheet_hash_map"][col_range[1]]
     idx = start[1]
     while idx<=end[1]:
         row = source["sheet_value_list"][idx]
-        # print("input_column: ", input_column, input_column in row)
         if input_column in row:
-            # print("found")
             return row[int(column)-1]
         idx+=1
     return None
@@ -70,18 +79,21 @@ def binarySearch(source, input_column, source_range, column, col_range):
     start = source["sheet_hash_map"][col_range[0]]
     end = source["sheet_hash_map"][col_range[1]]
     start, end = start[1], end[1]
+    
+    # search_idx = 0
+    search_idx = findColumnPosition(source, col_range[0])
 
     while start<=end:
         mid = (start+end)//2
         row = source["sheet_value_list"][mid]
-        search_idx = 0
+        
         if input_column == row[search_idx]:
             return row[int(column)-1]
         if int(input_column) < int(row[search_idx]):
             end = mid
         else:
             start = mid+1
-        print(start, end, row[search_idx], input_column, (row[search_idx]> input_column), (row[search_idx] < input_column))
+        # print(start, end, row[search_idx], input_column, (row[search_idx]> input_column), (row[search_idx] < input_column))
     return None
 
 def vlookup(input_column, source_range, column, is_sorted=True):
@@ -93,7 +105,6 @@ def vlookup(input_column, source_range, column, is_sorted=True):
         return linearSearch(source, input_column, source_range, column, col_range)
     else:
         return binarySearch(source, input_column, source_range, column, col_range)
-    # print(source["sheet_value_list"][start[1]:end[1]])
     
 
 
@@ -116,7 +127,7 @@ def main():
                     if command[0] not in current_obj:
                         raise Exception("column := {} not found".format(command[0]))
                     current_obj[new_key] = vlookup(current_obj[command[0]], *command[1:])
-                    print("current_obj[new_key]: ", current_obj[new_key])
+                    # print("current_obj[new_key]: ", current_obj[new_key])
             idx+=1
         for obj in requirement:
             print(obj)
